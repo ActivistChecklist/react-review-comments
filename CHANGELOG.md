@@ -1,5 +1,15 @@
 # @activistchecklist/react-review-comments
 
+## 0.3.1
+
+### Patch Changes
+
+- b3c8305: Declare `next` as a peer dependency (`^14 || ^15 || ^16`) instead of a hard dependency.
+
+  Consuming apps now satisfy it with the Next.js version they already install, so the package
+  no longer pins (or nests) its own copy of `next`. This also means a Next.js security patch in
+  the host app applies to this package immediately, with no release here required.
+
 ## 0.3.0
 
 ### Minor Changes
