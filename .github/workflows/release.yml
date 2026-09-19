@@ -19,18 +19,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Reads the pinned version from package.json "packageManager".
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: yarn
+          cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - name: Update npm for OIDC trusted publishing
-        run: npm install -g npm@latest
-
       - name: Verify toolchain versions
-        run: node -v && npm -v && yarn -v
+        run: node -v && npm -v && pnpm -v
 
       - name: Print GitHub OIDC identity context
         run: |
@@ -39,16 +40,55 @@ jobs:
           echo "ref=$GITHUB_REF"
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: yarn test
+        run: pnpm run test
+
+      # Without this gate, a push to main that carries no changeset still invokes
+      # changesets in publish mode. `npm info` can return stale data right after a
+      # release, so changesets concludes the current version is unpublished, retries
+      # the publish, and npm rejects it with "cannot publish over the previously
+      # published versions" -- failing every non-release merge.
+      - name: Decide whether changesets has work to do
+        id: check
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          has_changeset=false
+          for f in .changeset/*.md; do
+            [ "$(basename "$f")" = "README.md" ] && continue
+            has_changeset=true
+            break
+          done
+
+          if [ "$has_changeset" = true ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "reason=Pending changesets found -> open/update the version PR." >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "reason=$name@$version is already on npm -> nothing to release." >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "reason=$name@$version is not on npm -> publish." >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report decision
+        run: echo "${{ steps.check.outputs.reason }}"
 
       - name: Create release PR or publish
+        if: steps.check.outputs.run == 'true'
         uses: changesets/action@v1
         with:
-          version: yarn version-packages
-          publish: yarn release
+          version: pnpm run version-packages
+          publish: pnpm run release
           commit: "chore: version packages"
           title: "chore: version packages"
         env:
