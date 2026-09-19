@@ -18,7 +18,7 @@ yarn add @activistchecklist/react-review-comments
 pnpm add @activistchecklist/react-review-comments
 ```
 
-**Peers:** `react`, `react-dom`, `next` (App Router recommended), `@annotorious/react`, `@recogito/react-text-annotator`, `lucide-react`. **`mongodb`** is bundled as a regular dependency — you do not need to install it separately.
+**Peers:** `react`, `react-dom`, `next` (App Router recommended; `^14 || ^15 || ^16` — the package uses whatever Next your app already has, and never installs its own copy), `@annotorious/react`, `@recogito/react-text-annotator`, `lucide-react`. **`mongodb`** is bundled as a regular dependency — you do not need to install it separately.
 
 The package ships prebuilt ESM + type declarations.
 
