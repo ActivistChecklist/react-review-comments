@@ -19,22 +19,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Reads the pinned version from package.json "packageManager".
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm run typecheck
 
       - name: Run tests
-        run: yarn test
+        run: pnpm run test
 
       # prepack runs this on publish, so a build break would otherwise
       # only surface during the release run, after the merge has landed.
       - name: Build
-        run: yarn build
+        run: pnpm run build
