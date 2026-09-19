@@ -36,6 +36,7 @@
     "README.md"
   ],
   "peerDependencies": {
+    "next": "^14.0.0 || ^15.0.0 || ^16.0.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },
@@ -44,7 +45,6 @@
     "@recogito/react-text-annotator": "^3.4.9",
     "lucide-react": "^1.8.0",
     "mongodb": "^7.1.1",
-    "next": "^15.5.15",
     "openseadragon": "^6.0.2"
   },
   "devDependencies": {
@@ -54,6 +54,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "jsdom": "^29.0.2",
+    "next": "^15.5.24",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tsup": "^8.5.1",
